@@ -8,7 +8,7 @@ import { exportUnmatchedTrafficCommissionerCsv } from "./export/unmatchedTraffic
 import { logger } from "./logger";
 import { matchFleetOperatorsToCompanies } from "./matching/matchCompanies";
 import { buildFleetProspectProfiles } from "./prospects/buildFleetProspectProfiles";
-import { loadCompaniesHouseCompanies } from "./sources/companiesHouse";
+import { loadCompaniesHouseForOperatorCandidates } from "./sources/companiesHouse";
 import { loadTrafficCommissionerOperators } from "./sources/trafficCommissioner";
 import {
 	ensureDirectoriesExist,
@@ -49,6 +49,8 @@ async function runDoctor(): Promise<void> {
 			`SCORE_IMMEDIATE_THRESHOLD: ${config.SCORE_IMMEDIATE_THRESHOLD}`,
 		);
 		console.log(`SCORE_HIGH_THRESHOLD: ${config.SCORE_HIGH_THRESHOLD}`);
+		console.log(`CH_PROGRESS_EVERY_ROWS: ${config.CH_PROGRESS_EVERY_ROWS}`);
+		console.log(`TC_PROGRESS_EVERY_ROWS: ${config.TC_PROGRESS_EVERY_ROWS}`);
 		console.log(
 			`OPENAI_API_KEY present: ${toBooleanPresence(config.OPENAI_API_KEY)}`,
 		);
@@ -164,14 +166,30 @@ export async function runBuildFleetProspects(
 	}
 
 	reportProgress({
+		stage: "load-traffic-commissioner",
+		message: "Loading Traffic Commissioner CSV",
+	});
+
+	const operators = await loadTrafficCommissionerOperators(config.TC_CSV_FILE, {
+		progressEveryRows: config.TC_PROGRESS_EVERY_ROWS,
+		onProgress: (processedRows) =>
+			reportProgress({
+				stage: "load-traffic-commissioner",
+				message: `Loading Traffic Commissioner CSV (${processedRows} rows processed, ${formatMemoryUsageForProgress()})`,
+				processedRows,
+			}),
+	});
+	reportProgress({
 		stage: "load-companies-house",
 		message: "Loading Companies House CSV",
 	});
 
-	const companyIndexes = await loadCompaniesHouseCompanies(
+	const companyIndexes = await loadCompaniesHouseForOperatorCandidates(
 		config.CH_BULK_FILE,
 		config.CH_BULK_ENCODING as BufferEncoding,
+		operators,
 		{
+			progressEveryRows: config.CH_PROGRESS_EVERY_ROWS,
 			onProgress: (processedRows) =>
 				reportProgress({
 					stage: "load-companies-house",
@@ -180,19 +198,6 @@ export async function runBuildFleetProspects(
 				}),
 		},
 	);
-	reportProgress({
-		stage: "load-traffic-commissioner",
-		message: "Loading Traffic Commissioner CSV",
-	});
-
-	const operators = await loadTrafficCommissionerOperators(config.TC_CSV_FILE, {
-		onProgress: (processedRows) =>
-			reportProgress({
-				stage: "load-traffic-commissioner",
-				message: `Loading Traffic Commissioner CSV (${processedRows} rows processed, ${formatMemoryUsageForProgress()})`,
-				processedRows,
-			}),
-	});
 
 	reportProgress({
 		stage: "matching",

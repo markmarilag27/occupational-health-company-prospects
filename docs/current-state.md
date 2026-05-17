@@ -19,7 +19,7 @@
 - `bun run cli doctor`
   - Validates config, ensures directories, prints safe summary and API key presence booleans.
 - `bun run cli build:fleet-prospects`
-  - Runs core pipeline: load config, ensure dirs, validate input files exist, parse CH/TC CSVs, match, build profiles, export sales review CSV, optionally export unmatched TC CSV, print summary.
+  - Runs core pipeline: load config, ensure dirs, validate input files exist, parse TC CSV, stream/filter CH CSV for TC candidate matches, match, build profiles, export sales review CSV, optionally export unmatched TC CSV, print summary.
 - `bun run cli enrich:fleet-prospects [--ai] [--limit <n>]`
   - Reads existing export CSV and optionally enriches directors (Companies House API) and AI outreach hooks (OpenAI), then rewrites CSV.
 - `bun run combine:tc`
@@ -27,6 +27,7 @@
 
 ## 4. Current pipeline status
 - CSV-first pipeline: implemented.
+- Memory-safe CH load path: implemented (stream CH file and retain only operator-candidate CH rows for matching indexes).
 - Companies House parsing: implemented in `src/sources/companiesHouse.ts` with indexes:
   - by company number
   - by normalized name + postcode
@@ -79,6 +80,8 @@ From `.env.example`:
   - `TC_REGION`
   - `SCORE_IMMEDIATE_THRESHOLD`
   - `SCORE_HIGH_THRESHOLD`
+  - `CH_PROGRESS_EVERY_ROWS`
+  - `TC_PROGRESS_EVERY_ROWS`
 - Optional enrichment variables:
   - `COMPANIES_HOUSE_API_KEY`
   - `OPENAI_API_KEY`

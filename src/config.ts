@@ -17,6 +17,11 @@ const thresholdSchema = z.coerce
 	.min(0, "Threshold must be >= 0")
 	.max(100, "Threshold must be <= 100");
 
+const positiveIntegerSchema = z.coerce
+	.number()
+	.int("Value must be an integer")
+	.min(1, "Value must be >= 1");
+
 const rawConfigSchema = z.object({
 	NODE_ENV: z.string().trim().default("development"),
 	LOG_LEVEL: z.string().trim().default("info"),
@@ -38,6 +43,8 @@ const rawConfigSchema = z.object({
 
 	SCORE_IMMEDIATE_THRESHOLD: thresholdSchema.default(80),
 	SCORE_HIGH_THRESHOLD: thresholdSchema.default(65),
+	CH_PROGRESS_EVERY_ROWS: positiveIntegerSchema.default(50_000),
+	TC_PROGRESS_EVERY_ROWS: positiveIntegerSchema.default(10_000),
 
 	COMPANIES_HOUSE_API_KEY: optionalApiKey,
 	OPENAI_API_KEY: optionalApiKey,

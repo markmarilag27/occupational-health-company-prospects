@@ -186,9 +186,9 @@ More specifically:
 
 1. Load configuration.
 2. Ensure data directories exist.
-3. Read Companies House bulk CSV.
-4. Build Companies House indexes by company number, normalized name + postcode, and normalized name.
-5. Read Traffic Commissioner CSV.
+3. Read Traffic Commissioner CSV.
+4. Build candidate matching keys from Traffic Commissioner rows.
+5. Stream Companies House bulk CSV and retain only candidate Companies House rows for matching.
 6. Match Traffic Commissioner operators to Companies House companies.
 7. Build Fleet / Transport company prospect profiles.
 8. Export `fleet_prospect_profiles.csv`.
@@ -283,6 +283,8 @@ TC_REGION=
 
 SCORE_IMMEDIATE_THRESHOLD=80
 SCORE_HIGH_THRESHOLD=65
+CH_PROGRESS_EVERY_ROWS=50000
+TC_PROGRESS_EVERY_ROWS=10000
 
 COMPANIES_HOUSE_API_KEY=
 OPENAI_API_KEY=
@@ -302,6 +304,8 @@ CH_BULK_ENCODING=
 TC_CSV_FILE=
 SCORE_IMMEDIATE_THRESHOLD=
 SCORE_HIGH_THRESHOLD=
+CH_PROGRESS_EVERY_ROWS=
+TC_PROGRESS_EVERY_ROWS=
 ```
 
 ### Optional Enrichment Keys
@@ -351,8 +355,8 @@ It:
 1. Loads config.
 2. Ensures data directories exist.
 3. Checks Companies House and Traffic Commissioner CSV input files.
-4. Loads Companies House data.
-5. Loads Traffic Commissioner data.
+4. Loads Traffic Commissioner data.
+5. Streams Companies House data using Traffic Commissioner candidate keys (memory-safe build path).
 6. Matches operators to companies.
 7. Builds company prospect profiles.
 8. Exports the sales review CSV.
@@ -725,6 +729,30 @@ data/raw/traffic_commissioner/tc_operators.csv
 ```
 
 or update `.env`.
+
+### Build progress logs are too noisy
+
+Tune progress intervals in `.env`:
+
+```env
+CH_PROGRESS_EVERY_ROWS=100000
+TC_PROGRESS_EVERY_ROWS=25000
+```
+
+Larger values print fewer progress lines.
+
+### Build memory troubleshooting
+
+Capture build timing and peak memory:
+
+```bash
+docker compose exec app sh -lc '/usr/bin/time -v bun run cli build:fleet-prospects'
+```
+
+During build progress, memory is reported as:
+
+- `rss`: total resident process memory
+- `heapUsed`: active JavaScript heap usage
 
 ### API key missing
 

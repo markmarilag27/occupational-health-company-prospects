@@ -1,7 +1,10 @@
 import { describe, expect, test } from "bun:test";
 import { join } from "node:path";
 
-import { loadCompaniesHouseCompanies } from "./companiesHouse";
+import {
+	loadCompaniesHouseCompanies,
+	loadCompaniesHouseForOperatorCandidates,
+} from "./companiesHouse";
 
 const fixturePath = join(
 	import.meta.dir,
@@ -64,5 +67,34 @@ describe("loadCompaniesHouseCompanies", () => {
 		);
 		expect(byNamePostcode).toBeDefined();
 		expect(byNamePostcode).toHaveLength(2);
+	});
+
+	test("filters indexes to operator candidates to reduce retained Companies House rows", async () => {
+		const result = await loadCompaniesHouseForOperatorCandidates(
+			fixturePath,
+			"utf8",
+			[
+				{
+					sourceRowNumber: 2,
+					operatorName: "Acme Logistics",
+					normalizedOperatorName: "ACME LOGISTICS",
+					companyNumber: "00012345",
+					licenceNumber: "OB1234567",
+					licenceType: "Standard National",
+					trafficArea: "North West",
+					authorisedVehicles: 12,
+					authorisedTrailers: 2,
+					postcode: "SW1A 1AA",
+					status: "Active",
+				},
+			],
+		);
+
+		expect(result.companyCount).toBe(2);
+		expect(result.companiesByNumber.has("00012345")).toBeTrue();
+		expect(result.companiesByName.get("ACME LOGISTICS")?.length).toBe(2);
+		expect(
+			result.companiesByNamePostcode.get("ACME LOGISTICS|SW1A 1AA")?.length,
+		).toBe(2);
 	});
 });
