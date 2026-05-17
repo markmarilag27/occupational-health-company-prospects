@@ -11,7 +11,7 @@ import { iterateCsvRecords } from "../utils/csv";
 type CompaniesHouseRow = Record<string, string>;
 
 type CompaniesHouseIndex = {
-	companies: Company[];
+	companyCount: number;
 	companiesByNumber: Map<string, Company>;
 	companiesByNamePostcode: Map<string, Company[]>;
 	companiesByName: Map<string, Company[]>;
@@ -20,6 +20,7 @@ type CompaniesHouseIndex = {
 type CompaniesHouseLoadOptions = {
 	onProgress?: (processedRows: number) => void;
 	progressEveryRows?: number;
+	includeRegisteredAddress?: boolean;
 };
 
 function toNullableTrimmed(value: string | undefined): string | null {
@@ -70,11 +71,12 @@ export async function loadCompaniesHouseCompanies(
 	encoding: BufferEncoding,
 	options: CompaniesHouseLoadOptions = {},
 ): Promise<CompaniesHouseIndex> {
-	const companies: Company[] = [];
+	let companyCount = 0;
 	const companiesByNumber = new Map<string, Company>();
 	const companiesByNamePostcode = new Map<string, Company[]>();
 	const companiesByName = new Map<string, Company[]>();
 	const progressEveryRows = options.progressEveryRows ?? 50_000;
+	const includeRegisteredAddress = options.includeRegisteredAddress ?? false;
 	let processedRows = 0;
 
 	for await (const row of iterateCsvRecords<CompaniesHouseRow>(filePath, {
@@ -109,10 +111,12 @@ export async function loadCompaniesHouseCompanies(
 			postcode: normalizePostcode(row["RegAddress.PostCode"]),
 			sicCodes: parseCompaniesHouseSicTexts(row),
 			incorporationDate: toNullableTrimmed(row.IncorporationDate),
-			registeredAddress: collectRegisteredAddress(row),
+			registeredAddress: includeRegisteredAddress
+				? collectRegisteredAddress(row)
+				: {},
 		};
 
-		companies.push(company);
+		companyCount += 1;
 
 		companiesByNumber.set(company.companyNumber, company);
 
@@ -132,7 +136,7 @@ export async function loadCompaniesHouseCompanies(
 	}
 
 	return {
-		companies,
+		companyCount,
 		companiesByNumber,
 		companiesByNamePostcode,
 		companiesByName,

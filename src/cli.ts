@@ -108,6 +108,13 @@ type BuildOptions = {
 	onProgress?: (progress: BuildProgress) => void;
 };
 
+function formatMemoryUsageForProgress(): string {
+	const usage = process.memoryUsage();
+	const rssMb = Math.round(usage.rss / (1024 * 1024));
+	const heapUsedMb = Math.round(usage.heapUsed / (1024 * 1024));
+	return `rss=${rssMb}MB heapUsed=${heapUsedMb}MB`;
+}
+
 export async function runBuildFleetProspects(
 	env: NodeJS.ProcessEnv = process.env,
 	options: BuildOptions = {},
@@ -168,7 +175,7 @@ export async function runBuildFleetProspects(
 			onProgress: (processedRows) =>
 				reportProgress({
 					stage: "load-companies-house",
-					message: `Loading Companies House CSV (${processedRows} rows processed)`,
+					message: `Loading Companies House CSV (${processedRows} rows processed, ${formatMemoryUsageForProgress()})`,
 					processedRows,
 				}),
 		},
@@ -182,7 +189,7 @@ export async function runBuildFleetProspects(
 		onProgress: (processedRows) =>
 			reportProgress({
 				stage: "load-traffic-commissioner",
-				message: `Loading Traffic Commissioner CSV (${processedRows} rows processed)`,
+				message: `Loading Traffic Commissioner CSV (${processedRows} rows processed, ${formatMemoryUsageForProgress()})`,
 				processedRows,
 			}),
 	});
@@ -267,7 +274,7 @@ export async function runBuildFleetProspects(
 	return {
 		ok: true,
 		summary: {
-			companiesLoaded: companyIndexes.companies.length,
+			companiesLoaded: companyIndexes.companyCount,
 			operatorsLoaded: operators.length,
 			matchedCount: matched.length,
 			unmatchedCount: unmatched.length,

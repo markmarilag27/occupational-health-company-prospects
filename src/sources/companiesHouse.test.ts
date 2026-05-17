@@ -13,31 +13,39 @@ describe("loadCompaniesHouseCompanies", () => {
 	test("parses valid rows and skips rows missing company number or company name", async () => {
 		const result = await loadCompaniesHouseCompanies(fixturePath, "utf8");
 
-		expect(result.companies).toHaveLength(2);
-
-		const companyNumbers = result.companies.map(
-			(company) => company.companyNumber,
-		);
-		expect(companyNumbers).toEqual(["00012345", "00012345"]);
+		expect(result.companyCount).toBe(2);
+		expect(result.companiesByNumber.has("00012345")).toBeTrue();
 	});
 
 	test("parses SIC values and registered address fields", async () => {
-		const result = await loadCompaniesHouseCompanies(fixturePath, "utf8");
-		const firstCompany = result.companies[0];
+		const result = await loadCompaniesHouseCompanies(fixturePath, "utf8", {
+			includeRegisteredAddress: true,
+		});
+		const companies = result.companiesByName.get("ACME LOGISTICS") ?? [];
+		const companyWithSicAndAddress = companies.find(
+			(company) =>
+				company.sicCodes.length > 1 &&
+				company.registeredAddress["RegAddress.AddressLine1"] ===
+					"1 Fleet Street",
+		);
+		expect(companyWithSicAndAddress).toBeDefined();
+		if (!companyWithSicAndAddress) {
+			return;
+		}
 
-		expect(firstCompany.sicCodes).toEqual([
+		expect(companyWithSicAndAddress.sicCodes).toEqual([
 			"49410 - Freight transport by road",
 			"52290 - Other transportation support",
 		]);
-		expect(firstCompany.registeredAddress["RegAddress.AddressLine1"]).toBe(
-			"1 Fleet Street",
-		);
 		expect(
-			firstCompany.registeredAddress["RegAddress.AddressLine2"],
+			companyWithSicAndAddress.registeredAddress["RegAddress.AddressLine1"],
+		).toBe("1 Fleet Street");
+		expect(
+			companyWithSicAndAddress.registeredAddress["RegAddress.AddressLine2"],
 		).toBeNull();
-		expect(firstCompany.registeredAddress["RegAddress.PostTown"]).toBe(
-			"London",
-		);
+		expect(
+			companyWithSicAndAddress.registeredAddress["RegAddress.PostTown"],
+		).toBe("London");
 	});
 
 	test("builds company number, name+postcode, and name indexes", async () => {
