@@ -221,6 +221,10 @@ Default input path:
 data/raw/companies_house/BasicCompanyDataAsOneFile.csv
 ```
 
+Download source:
+
+- Companies House bulk data download page: https://download.companieshouse.gov.uk/en_output.html?ft=1
+
 ### Traffic Commissioner CSV
 
 Traffic Commissioner data is the fleet/operator licence source signal.
@@ -242,6 +246,11 @@ Default input path:
 ```text
 data/raw/traffic_commissioner/tc_operators.csv
 ```
+
+Download sources:
+
+- Traffic Commissioner operator licence dataset (data.gov.uk): https://www.data.gov.uk/dataset/2a67d1ee-8f1b-43a3-8bc6-e8772d162a3c/traffic-commissioners-goods-and-public-service-vehicle-operator-licence-records
+- Key Traffic Commissioner data index (GOV.UK): https://www.gov.uk/government/collections/key-traffic-commissioner-data
 
 Traffic Commissioner is the source signal. Fleet / Transport is the segment.
 
@@ -277,7 +286,6 @@ SCORE_HIGH_THRESHOLD=65
 
 COMPANIES_HOUSE_API_KEY=
 OPENAI_API_KEY=
-DEEPSEEK_API_KEY=
 ```
 
 ### Required for the Core CSV Pipeline
@@ -310,14 +318,6 @@ OPENAI_API_KEY=
 `OPENAI_API_KEY` is used for optional AI outreach hook enrichment.
 
 The core `build:fleet-prospects` command should work without either key.
-
-### Development Agent Key
-
-`DEEPSEEK_API_KEY` appears in the current `.env.example`.
-
-If this key is only for your AI development agent, consider keeping it outside the app `.env` and out of `.env.example`. The application itself should not need `DEEPSEEK_API_KEY` unless code explicitly uses it.
-
----
 
 ## CLI Commands
 

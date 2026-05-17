@@ -82,8 +82,6 @@ From `.env.example`:
 - Optional enrichment variables:
   - `COMPANIES_HOUSE_API_KEY`
   - `OPENAI_API_KEY`
-- Potential AGENTS.md conflict:
-  - `.env.example` includes `DEEPSEEK_API_KEY`, but AGENTS.md expected variable list does not include it.
 
 ## 9. Main source modules
 - `src/config.ts`: env schema/defaults and validation.
@@ -132,12 +130,11 @@ Run tests:
 - `src/index.ts` is still a hello-world stub; actual app entrypoint is CLI.
 - Runtime test/build execution status is unclear in this environment because Bun availability is unclear at doc-generation time.
 - Docker files are present (`Dockerfile`, `compose.yml`), while AGENTS.md states not to add Docker changes unless requested. Current repo history/baseline intent is unclear from filesystem alone.
-- `.env.example` includes `DEEPSEEK_API_KEY`, which is outside AGENTS.md expected env list.
 - README content may not fully reflect current implementation details; this file is intended as authoritative current snapshot.
 
 ## 12. Recommended next tasks
 1. Add CLI command-level tests for `enrich:fleet-prospects` flags and summary output.
 2. Add an integration test path that runs `combine:tc` output through parser + matching to validate end-to-end regional-file ingestion.
-3. Align `.env.example` with AGENTS.md expected variable list (or document why extra vars remain).
+3. Keep `.env.example` aligned with AGENTS.md expected variable list.
 4. Replace `src/index.ts` hello-world stub with a minimal CLI usage pointer (or remove if unused).
 5. Add concise troubleshooting notes for Docker/Bun permissions to README and AGENTS docs.

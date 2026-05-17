@@ -6,7 +6,7 @@ This file gives AI coding agents clear development instructions for the existing
 
 The repository is already set up. Do not bootstrap, recreate, restructure, or reinitialize the project unless explicitly asked.
 
-This project is developed with AI coding assistance through pi.dev using Gemini Flash 2.5 or the configured coding model.
+This project is developed with AI coding assistance using the configured coding model.
 
 ## Project overview
 

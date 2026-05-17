@@ -4,7 +4,7 @@
 
 This document explains how to use AI coding assistance for the existing `occupational-health-company-prospects` repository.
 
-The repo already exists. This workflow is not for bootstrapping or recreating the project. It is for day-to-day development using pi.dev with Gemini Flash 2.5 or whichever coding model is configured.
+The repo already exists. This workflow is not for bootstrapping or recreating the project. It is for day-to-day development using your configured coding model.
 
 ## Development principle
 
@@ -22,7 +22,7 @@ The agent should:
 
 Do not ask the agent to build the whole project in one prompt.
 
-## Standard pi.dev prompt template
+## Standard prompt template
 
 Use this template for most tasks:
 
@@ -106,7 +106,7 @@ Use this order unless the repo already has some of these pieces:
 
 ## Prompt: audit current repo
 
-Use this when starting a pi.dev session:
+Use this when starting a new AI session:
 
 ```text
 Read AGENTS.md first.
@@ -280,13 +280,13 @@ test: add matching edge cases
 docs: clarify ai development workflow
 ```
 
-## pi.dev usage notes
+## AI session usage notes
 
-In pi.dev, keep prompts focused and attach only the context needed for the task.
+Keep prompts focused and attach only the context needed for the task.
 
 Recommended flow:
 
-1. Open the repo in pi.dev.
+1. Open the repo in your coding environment.
 2. Ask the agent to read `AGENTS.md`.
 3. Ask for an audit when starting a new session.
 4. Give one small implementation task.
@@ -294,7 +294,7 @@ Recommended flow:
 6. Review its summary and diff.
 7. Commit manually after you are satisfied.
 
-If pi.dev lets you pin or attach context files, pin:
+If your coding environment lets you pin or attach context files, pin:
 
 - `AGENTS.md`
 - `docs/ai-development-workflow.md`
