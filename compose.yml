@@ -1,0 +1,26 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - USER_ID=${USER_ID:-1000}
+        - GROUP_ID=${GROUP_ID:-1000}
+        - USERNAME=${USERNAME:-dev}
+    image: occupational-health-company-prospects:latest
+    container_name: occupational-health-company-prospects-app
+    restart: unless-stopped
+    tty: true
+    stdin_open: true
+    working_dir: /var/www/html
+    volumes:
+      - ./:/var/www/html
+      - ~/.ssh:/home/${USERNAME:-dev}/.ssh
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    networks:
+      - default-network
+
+# Networks
+networks:
+  default-network:

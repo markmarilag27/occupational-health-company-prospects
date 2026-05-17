@@ -1,0 +1,48 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# Code indentation defaults
+indent_style = space
+indent_size = 2
+
+# TypeScript & JavaScript
+[*.{ts,tsx,js,mjs,cjs}]
+indent_style = space
+indent_size = 2
+
+# JSON
+[*.json]
+indent_size = 2
+
+# YAML (docker-compose.yml, CI configs)
+[*.{yml,yaml}]
+indent_style = space
+indent_size = 2
+
+# Dockerfile
+[Dockerfile]
+indent_style = space
+indent_size = 2
+
+# Markdown — don’t remove trailing spaces (important for formatting)
+[*.md]
+trim_trailing_whitespace = false
+
+# Environment variables
+[*.env]
+indent_style = none
+insert_final_newline = false
+
+# Shell scripts
+[*.sh]
+indent_style = space
+indent_size = 2
+
+# Ignore build folders & environment output
+[{build,dist,node_modules,bun.lockb}]
+insert_final_newline = false

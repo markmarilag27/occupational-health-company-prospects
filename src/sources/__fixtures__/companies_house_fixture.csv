@@ -1,0 +1,5 @@
+CompanyName,CompanyNumber,CompanyStatus,RegAddress.PostCode,IncorporationDate,SICCode.SicText_1,SICCode.SicText_2,SICCode.SicText_3,SICCode.SicText_4,RegAddress.AddressLine1,RegAddress.AddressLine2,RegAddress.PostTown
+Acme Logistics Ltd,12345,active,sw1a1aa,2010-01-02,49410 - Freight transport by road,52290 - Other transportation support,,,1 Fleet Street,,London
+No Number Transport,,active,EC1A1BB,2012-03-04,49410 - Freight transport by road,,,,2 Missing Number Road,,London
+,SC123,active,G11AA,2011-02-03,52219 - Other service activities,,,,3 Blank Name Road,,Glasgow
+Acme Logistics Limited,00012345,active,SW1A 1AA,2010-01-02,49410 - Freight transport by road,,,,1 Fleet Street,,London

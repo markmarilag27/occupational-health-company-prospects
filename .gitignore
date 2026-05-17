@@ -1,0 +1,57 @@
+# dependencies (bun install)
+node_modules
+
+# output
+out
+dist
+*.tgz
+
+# code coverage
+coverage
+*.lcov
+
+# logs
+logs
+_.log
+report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
+
+# dotenv environment variable files
+.env
+.env.*
+!.env.example
+
+# caches
+.eslintcache
+.cache
+*.tsbuildinfo
+
+# IntelliJ based IDEs
+.idea
+
+# Finder (MacOS) folder config
+.DS_Store
+
+# Bun
+.bun/
+
+# Data inputs and generated files
+data/raw/**/*.csv
+data/raw/**/*.zip
+data/raw/**/*.xlsx
+data/processed/**
+data/exports/**
+
+# Keep folder structure
+!data/raw/.gitkeep
+!data/raw/companies_house/.gitkeep
+!data/raw/traffic_commissioner/.gitkeep
+!data/processed/.gitkeep
+!data/exports/.gitkeep
+
+# OS/editor
+.DS_Store
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+
+.pi/
