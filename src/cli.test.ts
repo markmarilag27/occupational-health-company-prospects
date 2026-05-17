@@ -68,6 +68,57 @@ describe("build:fleet-prospects CLI flow", () => {
 		).toBeTrue();
 	});
 
+	test("reports build progress stages", async () => {
+		const root = await createTempRoot();
+		const progressStages: string[] = [];
+		const rowProgressStages = new Set<string>();
+
+		const result = await runBuildFleetProspects(
+			{
+				NODE_ENV: "test",
+				LOG_LEVEL: "info",
+				DATA_DIR: root,
+				RAW_DIR: join(root, "raw"),
+				PROCESSED_DIR: join(root, "processed"),
+				EXPORT_DIR: join(root, "exports"),
+				CH_BULK_FILE: join(
+					import.meta.dir,
+					"sources",
+					"__fixtures__",
+					"companies_house_fixture.csv",
+				),
+				CH_BULK_ENCODING: "utf8",
+				TC_CSV_FILE: join(
+					import.meta.dir,
+					"sources",
+					"__fixtures__",
+					"traffic_commissioner_fixture.csv",
+				),
+				SCORE_IMMEDIATE_THRESHOLD: "80",
+				SCORE_HIGH_THRESHOLD: "65",
+			},
+			{
+				onProgress: (progress) => {
+					progressStages.push(progress.stage);
+					if (typeof progress.processedRows === "number") {
+						rowProgressStages.add(progress.stage);
+					}
+				},
+			},
+		);
+
+		expect(result.ok).toBeTrue();
+		expect(progressStages[0]).toBe("start");
+		expect(progressStages).toContain("load-companies-house");
+		expect(progressStages).toContain("load-traffic-commissioner");
+		expect(progressStages).toContain("matching");
+		expect(progressStages).toContain("build-profiles");
+		expect(progressStages).toContain("export-sales-review");
+		expect(progressStages[progressStages.length - 1]).toBe("complete");
+		expect(rowProgressStages.has("load-companies-house")).toBeTrue();
+		expect(rowProgressStages.has("load-traffic-commissioner")).toBeTrue();
+	});
+
 	test("fails when Companies House CSV is missing", async () => {
 		const root = await createTempRoot();
 		const result = await runBuildFleetProspects({

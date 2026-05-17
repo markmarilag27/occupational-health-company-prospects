@@ -10,6 +10,11 @@ import { iterateCsvRecords } from "../utils/csv";
 
 type TrafficCommissionerRow = Record<string, string>;
 
+type TrafficCommissionerLoadOptions = {
+	onProgress?: (processedRows: number) => void;
+	progressEveryRows?: number;
+};
+
 const FIELD_ALIASES = {
 	operatorName: [
 		"operatorname",
@@ -101,13 +106,22 @@ function pickField(
 
 export async function loadTrafficCommissionerOperators(
 	filePath: string,
+	options: TrafficCommissionerLoadOptions = {},
 ): Promise<TrafficCommissionerOperator[]> {
 	const operators: TrafficCommissionerOperator[] = [];
 	let headerIndex: Map<string, string> | null = null;
 	let dataRowIndex = 0;
+	const progressEveryRows = options.progressEveryRows ?? 10_000;
 
 	for await (const row of iterateCsvRecords<TrafficCommissionerRow>(filePath)) {
 		dataRowIndex += 1;
+		if (
+			options.onProgress &&
+			progressEveryRows > 0 &&
+			dataRowIndex % progressEveryRows === 0
+		) {
+			options.onProgress(dataRowIndex);
+		}
 
 		if (headerIndex === null) {
 			headerIndex = buildHeaderIndex(row);
@@ -153,6 +167,10 @@ export async function loadTrafficCommissionerOperators(
 		};
 
 		operators.push(operator);
+	}
+
+	if (options.onProgress && dataRowIndex % progressEveryRows !== 0) {
+		options.onProgress(dataRowIndex);
 	}
 
 	return operators;

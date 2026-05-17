@@ -88,10 +88,45 @@ type BuildResult =
 	| { ok: true; summary: BuildSummary }
 	| { ok: false; reason: string };
 
+type BuildProgress =
+	| { stage: "start"; message: string }
+	| { stage: "directories"; message: string }
+	| { stage: "input-check"; message: string }
+	| { stage: "load-companies-house"; message: string; processedRows?: number }
+	| {
+			stage: "load-traffic-commissioner";
+			message: string;
+			processedRows?: number;
+	  }
+	| { stage: "matching"; message: string }
+	| { stage: "build-profiles"; message: string }
+	| { stage: "export-sales-review"; message: string }
+	| { stage: "export-unmatched"; message: string }
+	| { stage: "complete"; message: string };
+
+type BuildOptions = {
+	onProgress?: (progress: BuildProgress) => void;
+};
+
 export async function runBuildFleetProspects(
 	env: NodeJS.ProcessEnv = process.env,
+	options: BuildOptions = {},
 ): Promise<BuildResult> {
+	const reportProgress = (progress: BuildProgress): void => {
+		options.onProgress?.(progress);
+	};
+
+	reportProgress({
+		stage: "start",
+		message: "Starting Fleet / Transport prospect profile build",
+	});
+
 	const config = loadConfig(env);
+
+	reportProgress({
+		stage: "directories",
+		message: "Ensuring data directories exist",
+	});
 
 	await ensureDirectoriesExist([
 		config.DATA_DIR,
@@ -99,6 +134,11 @@ export async function runBuildFleetProspects(
 		config.PROCESSED_DIR,
 		config.EXPORT_DIR,
 	]);
+
+	reportProgress({
+		stage: "input-check",
+		message: "Checking required CSV inputs",
+	});
 
 	const hasCompaniesHouseCsv = await inputFileExists(config.CH_BULK_FILE);
 	if (!hasCompaniesHouseCsv) {
@@ -116,11 +156,43 @@ export async function runBuildFleetProspects(
 		};
 	}
 
+	reportProgress({
+		stage: "load-companies-house",
+		message: "Loading Companies House CSV",
+	});
+
 	const companyIndexes = await loadCompaniesHouseCompanies(
 		config.CH_BULK_FILE,
 		config.CH_BULK_ENCODING as BufferEncoding,
+		{
+			onProgress: (processedRows) =>
+				reportProgress({
+					stage: "load-companies-house",
+					message: `Loading Companies House CSV (${processedRows} rows processed)`,
+					processedRows,
+				}),
+		},
 	);
-	const operators = await loadTrafficCommissionerOperators(config.TC_CSV_FILE);
+	reportProgress({
+		stage: "load-traffic-commissioner",
+		message: "Loading Traffic Commissioner CSV",
+	});
+
+	const operators = await loadTrafficCommissionerOperators(config.TC_CSV_FILE, {
+		onProgress: (processedRows) =>
+			reportProgress({
+				stage: "load-traffic-commissioner",
+				message: `Loading Traffic Commissioner CSV (${processedRows} rows processed)`,
+				processedRows,
+			}),
+	});
+
+	reportProgress({
+		stage: "matching",
+		message:
+			"Matching Traffic Commissioner operators to Companies House companies",
+	});
+
 	const { matched, unmatched } = matchFleetOperatorsToCompanies(
 		operators,
 		companyIndexes,
@@ -134,9 +206,19 @@ export async function runBuildFleetProspects(
 		};
 	}
 
+	reportProgress({
+		stage: "build-profiles",
+		message: "Building Fleet / Transport prospect profiles",
+	});
+
 	const profiles = buildFleetProspectProfiles(matched, {
 		SCORE_IMMEDIATE_THRESHOLD: config.SCORE_IMMEDIATE_THRESHOLD,
 		SCORE_HIGH_THRESHOLD: config.SCORE_HIGH_THRESHOLD,
+	});
+
+	reportProgress({
+		stage: "export-sales-review",
+		message: "Exporting sales review CSV",
 	});
 
 	let outputPath: string;
@@ -156,6 +238,11 @@ export async function runBuildFleetProspects(
 
 	let unmatchedOutputPath: string | null = null;
 	if (unmatched.length > 0) {
+		reportProgress({
+			stage: "export-unmatched",
+			message: "Exporting unmatched Traffic Commissioner rows",
+		});
+
 		try {
 			unmatchedOutputPath = await exportUnmatchedTrafficCommissionerCsv(
 				unmatched,
@@ -171,6 +258,11 @@ export async function runBuildFleetProspects(
 			};
 		}
 	}
+
+	reportProgress({
+		stage: "complete",
+		message: "Build complete",
+	});
 
 	return {
 		ok: true,
@@ -188,7 +280,11 @@ export async function runBuildFleetProspects(
 
 async function runBuildFleetProspectsCommand(): Promise<void> {
 	try {
-		const result = await runBuildFleetProspects(process.env);
+		const result = await runBuildFleetProspects(process.env, {
+			onProgress: (progress) => {
+				console.log(`build:fleet-prospects: ${progress.message}`);
+			},
+		});
 		if (!result.ok) {
 			console.error(`build:fleet-prospects: failed: ${result.reason}`);
 			process.exitCode = 1;

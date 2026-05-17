@@ -17,6 +17,11 @@ type CompaniesHouseIndex = {
 	companiesByName: Map<string, Company[]>;
 };
 
+type CompaniesHouseLoadOptions = {
+	onProgress?: (processedRows: number) => void;
+	progressEveryRows?: number;
+};
+
 function toNullableTrimmed(value: string | undefined): string | null {
 	if (typeof value !== "string") {
 		return null;
@@ -63,15 +68,27 @@ function collectRegisteredAddress(
 export async function loadCompaniesHouseCompanies(
 	filePath: string,
 	encoding: BufferEncoding,
+	options: CompaniesHouseLoadOptions = {},
 ): Promise<CompaniesHouseIndex> {
 	const companies: Company[] = [];
 	const companiesByNumber = new Map<string, Company>();
 	const companiesByNamePostcode = new Map<string, Company[]>();
 	const companiesByName = new Map<string, Company[]>();
+	const progressEveryRows = options.progressEveryRows ?? 50_000;
+	let processedRows = 0;
 
 	for await (const row of iterateCsvRecords<CompaniesHouseRow>(filePath, {
 		encoding,
 	})) {
+		processedRows += 1;
+		if (
+			options.onProgress &&
+			progressEveryRows > 0 &&
+			processedRows % progressEveryRows === 0
+		) {
+			options.onProgress(processedRows);
+		}
+
 		const companyName = cleanDisplayCompanyName(row.CompanyName);
 		const normalizedCompanyName = normalizeCompanyNameForMatch(row.CompanyName);
 		const normalizedCompanyNumber = normalizeCompanyNumber(row.CompanyNumber);
@@ -108,6 +125,10 @@ export async function loadCompaniesHouseCompanies(
 		if (namePostcodeKey !== null) {
 			pushToMapArray(companiesByNamePostcode, namePostcodeKey, company);
 		}
+	}
+
+	if (options.onProgress && processedRows % progressEveryRows !== 0) {
+		options.onProgress(processedRows);
 	}
 
 	return {
