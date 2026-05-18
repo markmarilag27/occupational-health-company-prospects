@@ -127,7 +127,7 @@ describe("buildFleetProspectProfiles", () => {
 			"https://www.linkedin.com/search/results/companies/?keywords=Acme%20Logistics%20Ltd",
 		);
 		expect(profile.hseNoticeSearchUrl).toBe(
-			"https://www.google.com/search?q=Acme%20Logistics%20Ltd%20HSE%20notice",
+			"https://resources.hse.gov.uk/notices/notices/notice_list.asp?ST=N&SN=F&EO=LIKE&SF=RN&SV=Acme%20Logistics%20Ltd",
 		);
 	});
 });

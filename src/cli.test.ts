@@ -247,4 +247,45 @@ describe("build:fleet-prospects CLI flow", () => {
 			expect(result.reason).toContain("Failed to write sales review CSV");
 		}
 	});
+
+	test("supports limiting exported sales review rows", async () => {
+		const root = await createTempRoot();
+		const exportDir = join(root, "exports");
+		const result = await runBuildFleetProspects(
+			{
+				NODE_ENV: "test",
+				LOG_LEVEL: "info",
+				DATA_DIR: root,
+				RAW_DIR: join(root, "raw"),
+				PROCESSED_DIR: join(root, "processed"),
+				EXPORT_DIR: exportDir,
+				CH_BULK_FILE: join(
+					import.meta.dir,
+					"sources",
+					"__fixtures__",
+					"companies_house_fixture.csv",
+				),
+				CH_BULK_ENCODING: "utf8",
+				TC_CSV_FILE: join(
+					import.meta.dir,
+					"sources",
+					"__fixtures__",
+					"traffic_commissioner_fixture.csv",
+				),
+				SCORE_IMMEDIATE_THRESHOLD: "80",
+				SCORE_HIGH_THRESHOLD: "65",
+			},
+			{ exportLimit: 0 },
+		);
+
+		expect(result.ok).toBeTrue();
+		if (!result.ok) {
+			return;
+		}
+
+		expect(result.summary.profilesExported).toBe(0);
+		const content = await readFile(result.summary.outputPath, "utf8");
+		const lines = content.trimEnd().split("\n");
+		expect(lines).toHaveLength(1);
+	});
 });

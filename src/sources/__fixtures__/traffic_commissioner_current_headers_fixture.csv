@@ -1,0 +1,2 @@
+GeographicRegion,LicenceNumber,LicenceType,OperatorName,OperatorType,CorrespondenceAddress,OCAddress,TransportManager,NumberOfVehiclesAuthorised,NumberOfTrailersAuthorised,VehiclesSpecified,TrailersSpecified,DirectorOrPartner,LicenceStatus,ContinuationDate,CompanyRegNumber,source_region_file
+East of England,OB7654321,Restricted,Alpha Fleet Services Ltd,Limited Company,Addr 1,AB1 2CD,Jane Doe,17,3,0,0,John Smith,Active,2026-12-31,12345678,region_a.csv

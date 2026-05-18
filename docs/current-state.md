@@ -20,6 +20,7 @@
   - Validates config, ensures directories, prints safe summary and API key presence booleans.
 - `bun run cli build:fleet-prospects`
   - Runs core pipeline: load config, ensure dirs, validate input files exist, parse TC CSV, stream/filter CH CSV for TC candidate matches, match, build profiles, export sales review CSV, optionally export unmatched TC CSV, print summary.
+  - Supports `--limit <n>` to export only the first `n` sales review rows for QA/sample checks.
 - `bun run cli enrich:fleet-prospects [--ai] [--limit <n>]`
   - Reads existing export CSV and optionally enriches directors (Companies House API) and AI outreach hooks (OpenAI), then rewrites CSV.
 - `bun run combine:tc`
@@ -33,6 +34,7 @@
   - by normalized name + postcode
   - by normalized name
 - Traffic Commissioner parsing: implemented in `src/sources/trafficCommissioner.ts` with flexible header aliases.
+  - Includes support for current combined CSV header variants such as `CompanyRegNumber`, `NumberOfVehiclesAuthorised`, and `NumberOfTrailersAuthorised`.
 - Matching: implemented in `src/matching/matchCompanies.ts` with rule order:
   - company number
   - unique name+postcode
@@ -41,6 +43,8 @@
 - Scoring: implemented in `src/prospects/scoreFleetProspect.ts` with threshold-based priority.
 - Profile building: implemented in `src/prospects/buildFleetProspectProfiles.ts` including dedupe by company number and deterministic research URLs.
 - Export: implemented in `src/export/salesReviewCsv.ts` with exact header order; unmatched export in `src/export/unmatchedTrafficCommissionerCsv.ts`.
+- Fleet size export behavior: `fleet size` is always numeric; missing source values are exported as `0`.
+- HSE notice URL behavior: `HSE notice search URL` uses official HSE notices query parameters against `notice_list.asp` with recipient-name (`SF=RN`) and partial-match (`EO=LIKE`) search.
 
 ## 5. Optional enrichment status
 - Companies House API/director enrichment:

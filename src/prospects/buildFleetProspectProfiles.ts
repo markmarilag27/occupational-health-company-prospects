@@ -62,8 +62,8 @@ function buildLinkedInResearchUrl(companyName: string): string {
 }
 
 function buildHseNoticeSearchUrl(companyName: string): string {
-	const q = encodeURIComponent(`${companyName} HSE notice`);
-	return `https://www.google.com/search?q=${q}`;
+	const recipientName = encodeURIComponent(companyName);
+	return `https://resources.hse.gov.uk/notices/notices/notice_list.asp?ST=N&SN=F&EO=LIKE&SF=RN&SV=${recipientName}`;
 }
 
 export function buildFleetProspectProfiles(

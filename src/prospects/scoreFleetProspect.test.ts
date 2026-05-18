@@ -157,10 +157,33 @@ describe("scoreFleetProspect", () => {
 		const nurture = scoreFleetProspect(
 			createMatched({
 				operator: { status: "suspended", authorisedVehicles: 0 },
+				company: { companyStatus: "dissolved" },
 			}),
 			customThresholds,
 		);
 		expect(nurture.score).toBe(0);
 		expect(nurture.priority).toBe("Nurture");
+	});
+
+	test("unknown company status still receives base score from TC source signal", () => {
+		const matched = createMatched({
+			company: { companyStatus: null },
+			operator: { status: "unknown", authorisedVehicles: 0 },
+		});
+		const result = scoreFleetProspect(matched, thresholds);
+
+		expect(result.score).toBe(65);
+		expect(result.priority).toBe("High");
+	});
+
+	test("active-like Companies House status text is treated as active", () => {
+		const matched = createMatched({
+			company: { companyStatus: "Active - Proposal to Strike Off" },
+			operator: { authorisedVehicles: 10, status: "suspended" },
+		});
+		const result = scoreFleetProspect(matched, thresholds);
+
+		expect(result.score).toBe(75);
+		expect(result.priority).toBe("High");
 	});
 });

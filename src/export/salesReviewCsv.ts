@@ -63,7 +63,7 @@ export function mapProspectProfileToSalesReviewCsvRow(
 		"company status": toStringOrEmpty(profile.companyStatus),
 		"company summary": profile.companySummary,
 		segment: profile.segment,
-		"fleet size": toStringOrEmpty(profile.fleetSize),
+		"fleet size": String(profile.fleetSize ?? 0),
 		"licence type": toStringOrEmpty(profile.licenceType),
 		postcode: toStringOrEmpty(profile.postcode),
 		"industry / SIC": profile.industrySic,

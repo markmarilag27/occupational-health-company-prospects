@@ -108,6 +108,7 @@ type BuildProgress =
 
 type BuildOptions = {
 	onProgress?: (progress: BuildProgress) => void;
+	exportLimit?: number;
 };
 
 function formatMemoryUsageForProgress(): string {
@@ -227,6 +228,12 @@ export async function runBuildFleetProspects(
 		SCORE_IMMEDIATE_THRESHOLD: config.SCORE_IMMEDIATE_THRESHOLD,
 		SCORE_HIGH_THRESHOLD: config.SCORE_HIGH_THRESHOLD,
 	});
+	const exportLimit =
+		typeof options.exportLimit === "number" &&
+		Number.isFinite(options.exportLimit)
+			? Math.max(0, Math.floor(options.exportLimit))
+			: Number.POSITIVE_INFINITY;
+	const profilesToExport = profiles.slice(0, exportLimit);
 
 	reportProgress({
 		stage: "export-sales-review",
@@ -236,7 +243,7 @@ export async function runBuildFleetProspects(
 	let outputPath: string;
 	try {
 		outputPath = await exportSalesReviewCsv(
-			profiles,
+			profilesToExport,
 			config.EXPORT_DIR,
 			logger,
 		);
@@ -283,16 +290,20 @@ export async function runBuildFleetProspects(
 			operatorsLoaded: operators.length,
 			matchedCount: matched.length,
 			unmatchedCount: unmatched.length,
-			profilesExported: profiles.length,
+			profilesExported: profilesToExport.length,
 			outputPath,
 			unmatchedOutputPath,
 		},
 	};
 }
 
-async function runBuildFleetProspectsCommand(): Promise<void> {
+async function runBuildFleetProspectsCommand(options: {
+	limit?: string;
+}): Promise<void> {
 	try {
+		const exportLimit = options.limit ? Number(options.limit) : undefined;
 		const result = await runBuildFleetProspects(process.env, {
+			exportLimit,
 			onProgress: (progress) => {
 				console.log(`build:fleet-prospects: ${progress.message}`);
 			},
@@ -402,6 +413,7 @@ program
 	.description(
 		"Build Fleet / Transport company prospect profiles and export sales review CSV",
 	)
+	.option("--limit <number>", "Limit rows to export in sales review CSV")
 	.action(runBuildFleetProspectsCommand);
 
 program

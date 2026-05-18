@@ -28,6 +28,7 @@ const FIELD_ALIASES = {
 	companyNumber: [
 		"companyregistrationnumber",
 		"companynumber",
+		"companyregnumber",
 		"companyno",
 		"registrationnumber",
 		"crn",
@@ -46,15 +47,23 @@ const FIELD_ALIASES = {
 		"operatorlicencetype",
 		"operatorlicensetype",
 	],
-	trafficArea: ["trafficarea", "region", "trafficregion", "area"],
+	trafficArea: [
+		"trafficarea",
+		"region",
+		"trafficregion",
+		"geographicregion",
+		"area",
+	],
 	authorisedVehicles: [
 		"authorisedvehicles",
+		"numberofvehiclesauthorised",
 		"authorizedvehicles",
 		"totalvehicles",
 		"vehicles",
 	],
 	authorisedTrailers: [
 		"authorisedtrailers",
+		"numberoftrailersauthorised",
 		"authorizedtrailers",
 		"totaltrailers",
 		"trailers",

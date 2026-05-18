@@ -20,7 +20,17 @@ const SIC_BONUS_KEYWORDS = [
 ];
 
 function isActiveStatus(status: string | null): boolean {
-	return status?.trim().toLowerCase() === "active";
+	if (status === null) {
+		return false;
+	}
+
+	const normalized = status.trim().toLowerCase();
+	if (normalized.length === 0) {
+		return false;
+	}
+
+	// Companies House may include qualifiers such as "active - proposal to strike off".
+	return normalized.includes("active") && !normalized.includes("inactive");
 }
 
 function hasTransportSicBonus(sicCodes: string[]): boolean {
@@ -49,18 +59,15 @@ export function scoreFleetProspect(
 	matched: MatchedFleetOperator,
 	thresholds: ProspectScoreThresholds,
 ): FleetProspectScore {
-	if (!isActiveStatus(matched.company.companyStatus)) {
+	const companyStatus = matched.company.companyStatus;
+	if (companyStatus !== null && !isActiveStatus(companyStatus)) {
 		return {
 			score: 0,
 			priority: resolvePriority(0, thresholds),
 		};
 	}
 
-	let score = 0;
-
-	if (isActiveStatus(matched.operator.status)) {
-		score += 65;
-	}
+	let score = 65;
 
 	const vehicles = matched.operator.authorisedVehicles;
 	if (vehicles !== null && vehicles >= 50) {

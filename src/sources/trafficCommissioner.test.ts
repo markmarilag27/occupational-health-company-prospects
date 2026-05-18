@@ -15,6 +15,12 @@ const altHeaderFixturePath = join(
 	"traffic_commissioner_alt_headers_fixture.csv",
 );
 
+const currentHeaderFixturePath = join(
+	import.meta.dir,
+	"__fixtures__",
+	"traffic_commissioner_current_headers_fixture.csv",
+);
+
 describe("loadTrafficCommissionerOperators", () => {
 	test("parses operator name, company number, vehicle/trailer counts, and postcode", async () => {
 		const operators = await loadTrafficCommissionerOperators(fixturePath);
@@ -50,5 +56,22 @@ describe("loadTrafficCommissionerOperators", () => {
 		expect(operators[0].authorisedTrailers).toBe(0);
 		expect(operators[0].postcode).toBe("EC1A 1BB");
 		expect(operators[0].status).toBe("Valid");
+	});
+
+	test("supports current tc_operators.csv header variants", async () => {
+		const operators = await loadTrafficCommissionerOperators(
+			currentHeaderFixturePath,
+		);
+
+		expect(operators).toHaveLength(1);
+		expect(operators[0].operatorName).toBe("Alpha Fleet Services Ltd");
+		expect(operators[0].companyNumber).toBe("12345678");
+		expect(operators[0].licenceNumber).toBe("OB7654321");
+		expect(operators[0].licenceType).toBe("Restricted");
+		expect(operators[0].trafficArea).toBe("East of England");
+		expect(operators[0].authorisedVehicles).toBe(17);
+		expect(operators[0].authorisedTrailers).toBe(3);
+		expect(operators[0].postcode).toBeNull();
+		expect(operators[0].status).toBe("Active");
 	});
 });

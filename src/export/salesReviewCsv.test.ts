@@ -57,7 +57,7 @@ function createProfile(
 		linkedInResearchUrl:
 			"https://www.linkedin.com/search/results/companies/?keywords=Acme%20Logistics%20Ltd",
 		hseNoticeSearchUrl:
-			"https://www.google.com/search?q=Acme%20Logistics%20Ltd%20HSE%20notice",
+			"https://resources.hse.gov.uk/notices/notices/notice_list.asp?ST=N&SN=F&EO=LIKE&SF=RN&SV=Acme%20Logistics%20Ltd",
 		reviewStatus: "Needs Review",
 		salesRating: "",
 		salesComment: "",
@@ -111,6 +111,13 @@ describe("sales review CSV export", () => {
 		expect(row.score).toBe("75");
 		expect(row.priority).toBe("High");
 		expect(row["review status"]).toBe("Needs Review");
+	});
+
+	test("maps missing fleet size to 0", () => {
+		const row = mapProspectProfileToSalesReviewCsvRow(
+			createProfile({ fleetSize: null }),
+		);
+		expect(row["fleet size"]).toBe("0");
 	});
 
 	test("blank fields remain blank in output", async () => {

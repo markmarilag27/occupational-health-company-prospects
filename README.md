@@ -241,6 +241,17 @@ It provides:
 - postcode
 - status
 
+The parser supports common header variants, including these current combined-file names:
+
+- `OperatorName`
+- `CompanyRegNumber`
+- `LicenceNumber`
+- `LicenceType`
+- `GeographicRegion`
+- `NumberOfVehiclesAuthorised`
+- `NumberOfTrailersAuthorised`
+- `LicenceStatus`
+
 Default input path:
 
 ```text
@@ -348,6 +359,12 @@ The doctor command:
 bun run cli build:fleet-prospects
 ```
 
+For a smaller QA/sample export:
+
+```bash
+bun run cli build:fleet-prospects --limit 100
+```
+
 This is the main core pipeline command.
 
 It:
@@ -362,6 +379,8 @@ It:
 8. Exports the sales review CSV.
 9. Optionally exports unmatched Traffic Commissioner operators if unmatched rows exist.
 10. Logs summary counts.
+
+`--limit` controls only the number of sales review rows written to `fleet_prospect_profiles.csv`.
 
 Main output:
 
@@ -490,6 +509,11 @@ best_buyer_role
 missing_information
 wrong_reason
 ```
+
+`fleet size` is exported as a numeric value. When source vehicle count is missing, it is exported as `0`.
+
+`HSE notice search URL` uses the official HSE notices query endpoint with recipient-name search parameters, for example:
+`https://resources.hse.gov.uk/notices/notices/notice_list.asp?ST=N&SN=F&EO=LIKE&SF=RN&SV=Acme%20Logistics%20Ltd`
 
 These fields are for sales review.
 

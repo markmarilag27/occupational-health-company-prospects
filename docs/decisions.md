@@ -113,6 +113,8 @@ A profile should explain:
 
 The profile is not a qualified lead.
 
+For `HSE notice search URL`, use the official HSE notices query endpoint with recipient-name search parameters (`SF=RN`, `EO=LIKE`) rather than third-party search engines.
+
 ## Suggested services for Fleet / Transport
 
 For the first segment, suggested services are:
